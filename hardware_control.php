@@ -22,12 +22,13 @@ if (!file_exists($recyclingFile)) {
 }
 if (!file_exists($settingsFile)) {
     file_put_contents($settingsFile, json_encode([
-        "wifi_time" => 3600,
-        "ssid" => "BottleWifi",
-        "security_mode" => "WPA3-Personal",
-        "channel" => "Auto",
-        "firewall_enabled" => true
+    "wifi_minutes_per_bottle" => 5,
+    "ssid" => "BottleWifi",
+    "security_mode" => "WPA3-Personal",
+    "channel" => "Auto",
+    "firewall_enabled" => true
     ], JSON_PRETTY_PRINT));
+
 }
 
 // ---------- LOAD SETTINGS ----------
@@ -109,35 +110,47 @@ if ($action === "open") {
 // 4️⃣ **BOTTLE DETECTED → ADD SESSION & LOG EVENT**
 if ($action === "reward") {
 
-    // Add bottle to recycling logs
+    // how many bottles
+    $bottles = intval($_GET['bottles'] ?? 1);
+    if ($bottles < 1) $bottles = 1;
+
+    // compute wifi time
+    $totalMinutes = $minutesPerBottle * $bottles;
+    $totalSeconds = $totalMinutes * 60;
+
+    // log recycling event
     $entry = [
         "mac" => $clientMAC,
         "ip" => $clientIP,
-        "timestamp" => date("Y-m-d H:i:s")
+        "timestamp" => date("Y-m-d H:i:s"),
+        "bottles" => $bottles,
+        "minutes" => $totalMinutes
     ];
     $recycling[] = $entry;
     file_put_contents($recyclingFile, json_encode($recycling, JSON_PRETTY_PRINT));
 
-    // Generate WiFi session
-    $expiresAt = time() + $wifiTime;
+    // remove expired sessions
+    $sessions = array_filter($sessions, function ($s) {
+        return isset($s['expires_at']) && $s['expires_at'] > time();
+    });
+
+    // create wifi session
+    $expiresAt = time() + $totalSeconds;
     $session = [
         "mac" => $clientMAC,
         "ip" => $clientIP,
         "expires_at" => $expiresAt
     ];
-
-    // Remove expired sessions
-    $sessions = array_filter($sessions, function ($s) {
-        return isset($s['expires_at']) && $s['expires_at'] > time();
-    });
-
-    // Insert new session
     $sessions[] = $session;
+
     file_put_contents($sessionFile, json_encode(array_values($sessions), JSON_PRETTY_PRINT));
 
+    // response
     echo json_encode([
         "success" => true,
-        "reward_time" => $wifiTime,
+        "minutes_per_bottle" => $minutesPerBottle,
+        "bottles" => $bottles,
+        "total_minutes" => $totalMinutes,
         "expires_at" => $expiresAt,
         "mac" => $clientMAC,
         "ip" => $clientIP
@@ -145,9 +158,11 @@ if ($action === "reward") {
     exit;
 }
 
+
 // 5️⃣ **UNKNOWN ACTION**
 echo json_encode(["error" => "Unknown action"]);
 exit;
 
 ?>
+
 

@@ -32,7 +32,10 @@ if (!file_exists($settingsFile)) {
 
 // ---------- LOAD SETTINGS ----------
 $settings = json_decode(file_get_contents($settingsFile), true);
-$wifiTime = isset($settings['wifi_time']) ? intval($settings['wifi_time']) : 3600;
+$minutesPerBottle = isset($settings['wifi_minutes_per_bottle'])
+    ? intval($settings['wifi_minutes_per_bottle'])
+    : 5;
+
 
 // ---------- GET ACTION ----------
 $action = $_GET['action'] ?? null;
@@ -147,3 +150,4 @@ echo json_encode(["error" => "Unknown action"]);
 exit;
 
 ?>
+

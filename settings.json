@@ -1,0 +1,8 @@
+{
+    "ssid": "BottleWifi",
+    "sessionTime": 60,
+    "dailyLimit": 4,
+    "minutesPerBottle": 5,
+    "channel": "auto",
+    "securityMode": "open"
+}

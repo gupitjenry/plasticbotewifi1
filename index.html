@@ -1,0 +1,462 @@
+<?php
+// Initialize session or any PHP logic you need
+session_start();
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bottle WiFi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #eff6ff;
+            --card: #ffffff;
+            --accent: #2563eb;
+            --muted: #60a5fa;
+            --gradient-start: #3b82f6;
+            --gradient-end: #06b6d4;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 10px 10px, rgba(96, 165, 250, 0.15) 2px, transparent 0);
+            background-size: 24px 24px;
+            color: #1e40af;
+        }
+        
+        .container { 
+            background: var(--card);
+            padding: 2rem; 
+            border-radius: 24px; 
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
+            width: 100%; 
+            max-width: 28rem; 
+            margin: 1rem; 
+            border: 4px solid rgba(37, 99, 235, 0.15);
+            position: relative; 
+        }
+        
+        .header { 
+            text-align: center; 
+            margin-bottom: 2rem; 
+        }
+        
+        .emoji-row { 
+            display: flex; 
+            justify-content: center; 
+            gap: 0.5rem; 
+            margin-bottom: 1rem; 
+        }
+        
+        .emoji { 
+            font-size: 1.5rem; 
+        }
+        
+        .title { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: var(--accent);
+            margin-bottom: 0.5rem; 
+        }
+        
+        .subtitle { 
+            color: var(--muted);
+            margin-bottom: 0.5rem; 
+            font-size: 0.9rem; 
+        }
+        
+        .info-pill { 
+            display: inline-block; 
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-radius: 9999px; 
+            padding: 0.5rem 1rem; 
+            color: var(--accent);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .timer-section { 
+            text-align: center; 
+            margin-bottom: 2rem; 
+            display: none; 
+        }
+        
+        .timer-display { 
+            font-size: 3rem; 
+            font-weight: 700; 
+            color: var(--accent);
+            margin-bottom: 1rem; 
+        }
+        
+        .progress-bar-container { 
+            width: 100%; 
+            background: rgba(239, 246, 255, 0.5);
+            border-radius: 9999px; 
+            padding: 2px; 
+            margin-top: 1rem;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+        }
+        
+        .progress-bar { 
+            height: 6px; 
+            border-radius: 9999px; 
+            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+            transition: width 1s linear; 
+        }
+        
+        .start-button { 
+            width: 100%; 
+            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+            color: white; 
+            border: none; 
+            padding: 1rem 1.5rem; 
+            border-radius: 12px;
+            font-size: 1rem; 
+            font-weight: 600;
+            cursor: pointer; 
+            transition: all 0.2s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 0.5rem; 
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+        
+        .start-button:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 8px rgba(37, 99, 235, 0.3);
+        }
+        
+        .success-message { 
+            display: none; 
+            margin-top: 1rem; 
+            padding: 1.5rem; 
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            border-radius: 16px; 
+            text-align: center;
+            color: white;
+        }
+        
+        .success-message .title {
+            color: white;
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .success-message .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+        }
+        
+        .status-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 1rem; 
+            margin-top: 1.5rem; 
+        }
+        
+        .status-card { 
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.75rem; 
+            border-radius: 8px; 
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .status-label { 
+            font-size: 0.75rem; 
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500; 
+        }
+        
+        .status-value { 
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 0.25rem;
+        }
+        
+        .network-info { 
+            margin-top: 1rem; 
+            font-size: 0.75rem; 
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center; 
+        }
+        
+        .dust-container { 
+            position: absolute; 
+            top:0; 
+            left:0; 
+            right:0; 
+            bottom:0; 
+            overflow:hidden; 
+            pointer-events:none; 
+        }
+        
+        .dust { 
+            position: absolute; 
+            width:3px; 
+            height:3px; 
+            background: rgba(96, 165, 250, 0.3);
+            border-radius:50%; 
+        }
+        
+        @keyframes float-up { 
+            0%{transform:translateY(100%) translateX(0) scale(0);opacity:0;} 
+            50%{opacity:0.5;} 
+            100%{transform:translateY(-100%) translateX(var(--tx)) scale(1);opacity:0;} 
+        }
+        
+        @keyframes pulse {
+            0%{transform:scale(1);}
+            50%{transform:scale(1.02);}
+            100%{transform:scale(1);} 
+        }
+        
+        .pulse { 
+            animation: pulse 2s infinite; 
+        }
+        
+        .admin-link {
+            text-align:center;
+            margin:2rem 0;
+            transform:scale(1);
+            transition:transform 0.3s ease;
+        }
+        
+        .admin-link:hover {
+            transform:scale(1.05);
+        }
+        
+        .admin-button {
+            font-size:1rem;
+            font-weight:500;
+            color: var(--accent);
+            text-decoration:none;
+            padding:1rem 1.5rem;
+            border-radius:9999px;
+            transition:all 0.2s;
+            background:white;
+            box-shadow:0 2px 4px rgba(37, 99, 235, 0.1);
+            border:2px solid rgba(37, 99, 235, 0.2);
+            display:inline-flex;
+            align-items:center;
+            gap:0.5rem;
+        }
+        
+        .admin-button:hover {
+            background: rgba(239, 246, 255, 0.5);
+            border-color: var(--accent);
+            box-shadow:0 4px 8px rgba(37, 99, 235, 0.2);
+        }
+        
+        .admin-button svg {
+            width:20px;
+            height:20px;
+        }
+        
+        @media (max-width:640px){
+            .container{
+                padding:1.5rem;
+                margin:0.75rem;
+                border-radius:16px;
+            }
+            .title{
+                font-size:1.25rem;
+            }
+            .emoji{
+                font-size:1.25rem;
+            }
+            .timer-display{
+                font-size:2.5rem;
+            }
+            .start-button{
+                padding:0.875rem 1.25rem;
+                font-size:0.9375rem;
+            }
+            .status-grid{
+                gap:0.75rem;
+            }
+            .status-card{
+                padding:0.625rem;
+            }
+            .admin-link{
+                margin:1.5rem 0;
+            }
+            .admin-button{
+                font-size:0.9rem;
+                padding:0.875rem 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dust-container"></div>
+        
+        <div class="header">
+           
+            <h1 class="title">Bottle WiFi</h1>
+            <p class="subtitle">Insert a bottle to connect</p>
+            <div class="info-pill">
+                <span>1 Bottle = 5 minutes</span>
+            </div>
+        </div>
+
+        <div id="timerSection" class="timer-section">
+            <div class="timer-display" id="timer">30</div>
+            <p class="subtitle">Please insert your bottle</p>
+            <div class="progress-bar-container">
+                <div id="progressBar" class="progress-bar" style="width: 100%"></div>
+            </div>
+        </div>
+
+        <div id="startSection">
+            <button id="startButton" class="start-button pulse">
+                <span>Start Recycling</span>
+                
+            </button>
+
+            <div class="admin-link">
+                <a href="admin-login.php" class="admin-button">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Admin Settings
+                </a>
+            </div>
+        </div>
+
+        <div id="successMessage" class="success-message">
+            <div class="title">Connected!</div>
+            <p class="subtitle">Thank you for recycling. Your 5 minutes of WiFi access starts now.</p>
+            
+            <div class="status-grid">
+                <div class="status-card">
+                    <div class="status-label">Status</div>
+                    <div class="status-value">Active</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-label">Time Left</div>
+                    <div class="status-value" id="timeRemaining">5:00</div>
+                </div>
+            </div>
+            
+            <div class="network-info">Network: Bottle_WiFi</div>
+        </div>
+    </div>
+
+    <script>
+        function createDust() {
+            const container = document.querySelector('.dust-container');
+            for (let i = 0; i < 30; i++) {
+                const dust = document.createElement('div');
+                dust.className = 'dust';
+                const size = Math.random() * 3 + 1;
+                const startX = Math.random() * 100;
+                const tx = (Math.random() - 0.5) * 50;
+                const duration = Math.random() * 3 + 2;
+                const delay = Math.random() * 2;
+                
+                dust.style.cssText = `
+                    left: ${startX}%;
+                    width: ${size}px;
+                    height: ${size}px;
+                    --tx: ${tx}px;
+                    animation: float-up ${duration}s ease-in infinite ${delay}s;
+                `;
+                
+                container.appendChild(dust);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            createDust();
+
+            const startButton = document.getElementById('startButton');
+            const timerSection = document.getElementById('timerSection');
+            const startSection = document.getElementById('startSection');
+            const timer = document.getElementById('timer');
+            const progressBar = document.getElementById('progressBar');
+            const successMessage = document.getElementById('successMessage');
+            
+            let timeLeft = 30;
+            let countdownInterval;
+
+            const adminButton = document.querySelector('.admin-button');
+            adminButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (countdownInterval) { clearInterval(countdownInterval); }
+                window.location.href = 'admin-login.php';
+            });
+
+            startButton.addEventListener('click', function() {
+                startSection.style.display = 'none';
+                timerSection.style.display = 'block';
+                
+                let checkIR = setInterval(async function() {
+                    const r = await fetch("ir.php");
+                    const data = await r.json();
+
+                    if (data.detected) {
+                        clearInterval(checkIR);
+                        clearInterval(countdownInterval);
+                        timerSection.style.display = 'none';
+                        successMessage.style.display = 'block';
+                        startWiFiTimer();
+                    }
+                }, 1000);
+
+                countdownInterval = setInterval(function() {
+                    timeLeft--;
+                    timer.textContent = timeLeft;
+                    progressBar.style.width = (timeLeft / 30 * 100) + '%';
+
+                    if (timeLeft <= 0) {
+                        clearInterval(countdownInterval);
+                        clearInterval(checkIR);
+                        timerSection.style.display = 'none';
+                        alert("No bottle detected! Please insert a bottle to proceed."); 
+                        timeLeft = 30;
+                        timer.textContent = timeLeft;
+                        progressBar.style.width = '100%';
+                        startSection.style.display = 'block';
+                    }
+                }, 1000);
+            });
+
+            function startWiFiTimer() {
+                let wifiTimeLeft = 5 * 60;
+                const timeRemaining = document.getElementById('timeRemaining');
+                
+                const wifiInterval = setInterval(function() {
+                    wifiTimeLeft--;
+                    const minutes = Math.floor(wifiTimeLeft / 60);
+                    const seconds = wifiTimeLeft % 60;
+                    timeRemaining.textContent = `${minutes}:${seconds.toString().padStart(2,'0')}`;
+                    
+                    if (wifiTimeLeft <= 0) {
+                        clearInterval(wifiInterval);
+                        successMessage.querySelector('.subtitle').textContent = 'Your session has ended. Please insert another bottle for more time.';
+                        successMessage.querySelector('.status-value').textContent = 'Disconnected';
+                    }
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

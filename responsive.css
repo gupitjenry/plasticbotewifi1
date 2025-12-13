@@ -1,0 +1,202 @@
+/* Common Responsive Styles */
+:root {
+    --sidebar-width: 240px;
+    --header-height: 64px;
+}
+
+/* Mobile Menu Trigger */
+.mobile-menu-trigger,
+.back-button {
+    display: none;
+    padding: 8px;
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.back-button:hover {
+    transform: translateX(-2px);
+}
+
+.mobile-menu-trigger svg,
+.back-button svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Mobile Header */
+.mobile-header {
+    display: none;
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+/* Responsive Grid Layouts */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+/* Table Responsiveness */
+.table-container {
+    overflow-x: auto;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+}
+
+.responsive-table {
+    min-width: 640px;
+}
+
+/* Card Responsiveness */
+.card {
+    padding: clamp(1rem, 5vw, 2rem);
+    border-radius: clamp(12px, 3vw, 24px);
+}
+
+/* Form Elements */
+.form-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    flex: 1 1 200px;
+}
+
+/* Breakpoints */
+@media (max-width: 1024px) {
+    .dashboard {
+        grid-template-columns: 1fr !important;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        bottom: 0;
+        width: var(--sidebar-width);
+        background: var(--card);
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+
+    .sidebar.active {
+        left: 0;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .mobile-header,
+    .mobile-menu-trigger {
+        display: flex;
+        align-items: center;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+
+    .header {
+        position: sticky;
+        top: var(--header-height);
+        background: var(--bg);
+        z-index: 90;
+        padding: 1rem;
+        margin: -1rem -1rem 1rem -1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid,
+    .settings-grid,
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-group {
+        flex: 1 1 100%;
+    }
+
+    .card {
+        margin: 0.5rem;
+    }
+
+    .welcome {
+        font-size: 1.25rem !important;
+    }
+
+    .stat-card {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .mobile-header .logo span {
+        display: none;
+    }
+
+    .date {
+        font-size: 0.875rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem !important;
+    }
+
+    .device-status,
+    .action-btn {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Backdrop */
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 999;
+}
+
+.sidebar-backdrop.active {
+    display: block;
+}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BottleWifi Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f0fdf4;
+            --card: #ffffff;
+            --accent: #059669;
+            --muted: #65a88a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .portal-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .time-display {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(5, 150, 105, 0.1);
+            border-radius: 16px;
+        }
+
+        .time-value {
+            font-size: 2rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .bottle-count {
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        .bottle-ratio {
+            color: var(--muted);
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="portal-card">
+        <h1 style="color: var(--accent); margin-bottom: 1.5rem;">Welcome to BottleWifi</h1>
+        
+        <div class="time-display" data-minutes="60">
+            <div class="time-value">60 minutes</div>
+            <div class="bottle-count">12 bottles of water</div>
+        </div>
+
+        <p class="bottle-ratio">5 minutes = 1 bottle</p>
+    </div>
+
+    <script src="user-settings.js"></script>
+</body>
+</html>

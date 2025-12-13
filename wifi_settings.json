@@ -1,0 +1,8 @@
+{
+  "ssid": "Bottle_WiFi",
+  "security_mode": "WPA3-Personal",
+  "channel": "Auto",
+  "wifi_time": 300,
+  "firewall_enabled": true,
+  "password": "bottlewifi2025"
+}

@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Login — BottleWifi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #eff6ff;
+      --card: #ffffff;
+      --accent: #2563eb;
+      --muted: #60a5fa;
+      --gradient-start: #3b82f6;
+      --gradient-end: #06b6d4;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    html, body {
+      height: 100%;
+      margin: 0;
+      background-color: var(--bg);
+      background-image: radial-gradient(circle at 10px 10px, rgba(96, 165, 250, 0.15) 2px, transparent 0);
+      background-size: 24px 24px;
+      color: #1e40af;
+    }
+    
+    .wrap {
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+    
+    .card {
+      width: 380px;
+      background: var(--card);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
+      border: 4px solid rgba(37, 99, 235, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    h1 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: var(--accent);
+    }
+    
+    p.lead {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    
+    label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+    
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      background: transparent;
+      color: var(--accent);
+      font-size: 14px;
+      box-sizing: border-box;
+      transition: all 0.2s;
+    }
+
+    input[type="text"]:focus, input[type="password"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    
+    .row {
+      margin-bottom: 12px;
+    }
+    
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+    }
+    
+    button.primary {
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+      border: 0;
+      padding: 10px 14px;
+      border-radius: 9999px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+      width: 100%;
+    }
+    
+    button.primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 8px rgba(37, 99, 235, 0.3);
+    }
+    
+    button.primary[disabled] {
+      opacity: 0.6;
+      cursor: default;
+    }
+    
+    .muted-link {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .muted-link:hover {
+      color: var(--accent);
+    }
+    
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+      text-align: center;
+    }
+    
+    .toggle {
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      transition: color 0.2s;
+      padding: 4px 8px;
+    }
+
+    .toggle:hover {
+      color: var(--accent);
+    }
+    
+    .error {
+      color: #dc2626;
+      font-size: 13px;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #fee;
+      border-radius: 8px;
+      border: 1px solid #fcc;
+    }
+
+    .dust-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .dust {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(96, 165, 250, 0.3);
+      border-radius: 50%;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--muted);
+    }
+
+    .input-with-icon {
+      padding-left: 36px !important;
+    }
+
+    @keyframes float-up {
+      0% {
+        transform: translateY(100%) translateX(0) scale(0);
+        opacity: 0;
+      }
+      50% {
+        opacity: 0.5;
+      }
+      100% {
+        transform: translateY(-100%) translateX(var(--tx)) scale(1);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .card {
+        width: 100%;
+        padding: 24px;
+        border-radius: 16px;
+      }
+
+      .wrap {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card" aria-labelledby="login-heading">
+      <div class="dust-container"></div>
+      
+      <h1 id="login-heading">Admin Sign In</h1>
+      <p class="lead">Authenticate with your admin credentials to access the dashboard.</p>
+
+      <form id="admin-login" action="admin_login.php" method="POST" autocomplete="off">
+        <div class="row">
+          <label for="username">Username or email</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <input id="username" name="username" type="text" required autocomplete="username" spellcheck="false" class="input-with-icon" />
+          </div>
+        </div>
+
+        <div class="row">
+          <label for="password">Password</label>
+          <div style="display:flex;gap:8px">
+            <div class="input-wrapper" style="flex:1">
+              <svg class="input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <input id="password" name="password" type="password" required autocomplete="current-password" class="input-with-icon" />
+            </div>
+            <button type="button" class="toggle" id="pw-toggle" aria-label="Show password">Show</button>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;display:flex;flex-direction:column">
+          <button class="primary" id="submit-btn" type="submit">Sign in</button>
+          
+          <div style="margin-top:16px;text-align:center">
+            <a class="muted-link" href="index.php">
+              <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+              Back to Portal
+            </a>
+          </div>
+          
+          <div id="error" class="error" role="status" aria-live="polite" style="display:none"></div>
+          <div class="small">Default: admin / RKM_admin_bottlewifi</div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    function createDust() {
+      const container = document.querySelector('.dust-container');
+      for (let i = 0; i < 30; i++) {
+        const dust = document.createElement('div');
+        dust.className = 'dust';
+        const size = Math.random() * 3 + 1;
+        const startX = Math.random() * 100;
+        const tx = (Math.random() - 0.5) * 50;
+        const duration = Math.random() * 3 + 2;
+        const delay = Math.random() * 2;
+        
+        dust.style.cssText = `
+          left: ${startX}%;
+          width: ${size}px;
+          height: ${size}px;
+          --tx: ${tx}px;
+          animation: float-up ${duration}s ease-in infinite ${delay}s;
+        `;
+        
+        container.appendChild(dust);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      createDust();
+      
+      const form = document.getElementById('admin-login');
+      const usr = document.getElementById('username');
+      const pwd = document.getElementById('password');
+      const btn = document.getElementById('submit-btn');
+      const err = document.getElementById('error');
+      const toggle = document.getElementById('pw-toggle');
+
+      toggle.addEventListener('click', () => {
+        const type = pwd.getAttribute('type') === 'password' ? 'text' : 'password';
+        pwd.setAttribute('type', type);
+        toggle.textContent = type === 'password' ? 'Show' : 'Hide';
+      });
+
+      form.addEventListener('submit', function(e){
+        err.style.display = 'none';
+        err.textContent = '';
+
+        if (!usr.value.trim() || !pwd.value) {
+          e.preventDefault();
+          err.textContent = 'Please enter username and password.';
+          err.style.display = 'block';
+          usr.focus();
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Signing in...';
+      });
+
+      const params = new URLSearchParams(location.search);
+      if (params.has('error')) {
+        err.textContent = params.get('error');
+        err.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

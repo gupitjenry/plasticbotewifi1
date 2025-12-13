@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History — BottleWifi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="dust-container"></div>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <!-- Same sidebar content -->
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h2 class="welcome">Connection History</h2>
+                <div class="date" id="current-date"></div>
+            </header>
+
+            <div class="history-filters">
+                <select class="filter-select">
+                    <option>Last 24 Hours</option>
+                    <option>Last 7 Days</option>
+                    <option>Last 30 Days</option>
+                    <option>Custom Range</option>
+                </select>
+                <input type="search" placeholder="Search devices..." class="search-input">
+            </div>
+
+            <div class="history-list">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Device</th>
+                            <th>Event</th>
+                            <th>Data Used</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dynamic content will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="dashboard.js"></script>
+    <script src="history.js"></script>
+</body>
+</html>

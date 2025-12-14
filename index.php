@@ -559,13 +559,17 @@ body {
                             bottleCountDisplay.textContent = bottleCount;
                             
                             fetch('settings_handler.php')
-                                .then(res => res.json())
-                                .catch(() => ({ wifi_time: 300 }))
-                                .then(settings => {
-                                    const minutesPerBottle = Math.floor(settings.wifi_time / 60);
-                                    const totalMinutes = bottleCount * minutesPerBottle;
-                                    totalTimeDisplay.textContent = `${totalMinutes} minutes WiFi`;
-                                });
+                              .then(res => res.json())
+                              .catch(() => ({ wifi_minutes_per_bottle: 5 }))
+                              .then(settings => {
+                              const minutesPerBottle = Number(settings.wifi_minutes_per_bottle);
+                              const totalMinutes = Number(data.total_minutes);
+                              const safeTotalMinutes = isNaN(totalMinutes) || totalMinutes <= 0 ? 5 : totalMinutes;
+                              let secondsLeft = safeTotalMinutes * 60;
+                              totalTimeDisplay.textContent = `${totalMinutes} minutes WiFi`;
+                              });
+
+
                             
                             timerSection.style.display = 'none';
                             bottleCountSection.style.display = 'block';
@@ -620,13 +624,14 @@ body {
     }
 
     // call back-end to grant access
-    fetch(`hardware_control.php?action=wifi&subaction=grant&token=${encodeURIComponent(verificationToken)}&bottles=${encodeURIComponent(numBottles)}`, { cache: "no-store" })
-        .then(res => {
-            if (!res.ok) throw new Error('Network response was not ok: ' + res.status);
-            return res.json();
-        })
-        .then(data => {
-            console.log('WiFi granted:', data);
+    fetch(`hardware_control.php?action=reward&bottles=${numBottles}&token=${verificationToken}`, {
+    cache: "no-store"
+    })
+
+      .then(res => res.json())   // ✅ THIS WAS MISSING
+      .then(data => {
+        console.log('WiFi granted:', data);
+
 
             if (data.error) {
                 console.error('WiFi grant failed:', data.error);
@@ -640,9 +645,15 @@ body {
             }
 
             // data.duration_minutes should be minutes PER BOTTLE (as hardware_control.php returns)
-            const minutesPerBottle = Number(data.duration_minutes || 5);
-            const totalMinutes = minutesPerBottle * Number(numBottles || 1);
+            const totalMinutes = Number(data.total_minutes);
+
+            if (isNaN(totalMinutes) || totalMinutes <= 0) {
+            showError('Invalid WiFi duration received', 'INVALID_JSON', data);
+            return;
+            }
+
             let secondsLeft = totalMinutes * 60;
+   
 
             // update subtitle to show total minutes
             successMessage.querySelector('.subtitle').textContent =
@@ -650,38 +661,25 @@ body {
 
             // render initial display immediately
             function renderTime(sec) {
-                const m = Math.floor(sec / 60);
-                const s = sec % 60;
-                display.textContent = `${m}:${s.toString().padStart(2, '0')}`;
-            }
-            renderTime(secondsLeft);
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    display.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+}
 
-            // store interval globally so we can clear it later
-            window._wifiTimerInterval = setInterval(function () {
-                secondsLeft--;
-                if (secondsLeft < 0) secondsLeft = 0;
-                renderTime(secondsLeft);
+renderTime(secondsLeft);
 
-                if (secondsLeft <= 0) {
-                    clearInterval(window._wifiTimerInterval);
-                    window._wifiTimerInterval = null;
-                    document.querySelector('.success-message').style.display = 'none';
+window._wifiTimerInterval = setInterval(() => {
+    secondsLeft--;
+    if (secondsLeft < 0) secondsLeft = 0;
+    renderTime(secondsLeft);
 
-                    // revoke access on server
-                    fetch('hardware_control.php?action=wifi&subaction=revoke', { cache: "no-store" })
-                        .then(r => r.json().catch(() => ({})))
-                        .then(resp => {
-                            console.log('WiFi revoked:', resp);
-                            alert('Your WiFi session has ended. Drop another bottle to continue using the internet.');
-                            window.location.reload();
-                        })
-                        .catch(err => {
-                            console.error('Failed to revoke WiFi:', err);
-                            alert('Your WiFi session has ended. Drop another bottle to continue using the internet.');
-                            window.location.reload();
-                        });
-                }
-            }, 1000);
+    if (secondsLeft === 0) {
+        clearInterval(window._wifiTimerInterval);
+        alert('Your WiFi session has ended.');
+        window.location.reload();
+    }
+}, 1000);
+
         })
         .catch(err => {
             console.error('WiFi control error:', err);
@@ -694,3 +692,5 @@ body {
     </script>
 </body>
 </html>
+
+ 

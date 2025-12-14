@@ -406,15 +406,16 @@ body {
                             bottlesCollectedText.textContent = 'Bottles Collected';
                         }
                        
-                        // Fetch duration and update total time
                         fetch('settings_handler.php')
-                            .then(res => res.json())
-                            .catch(() => ({ wifi_time: 300 }))
-                            .then(settings => {
-                                const minutesPerBottle = Math.floor(settings.wifi_time / 60);
-                                const totalMinutes = bottleCount * minutesPerBottle;
-                                totalTimeDisplay.textContent = `${totalMinutes} minutes WiFi`;
-                            });
+                          .then(res => res.json())
+                          .catch(() => ({ wifi_time: 300 }))
+                          .then(settings => {
+                          const minutesPerBottle = Math.floor(settings.wifi_time / 60);
+                          const totalMinutes = bottleCount * minutesPerBottle;
+                          totalTimeDisplay.textContent = `${totalMinutes} minutes WiFi`;
+                          });
+
+
 
                         // Show success message briefly
                         waitingMessage.style.display = 'none';

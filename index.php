@@ -511,101 +511,81 @@ body {
             });
 
             doneButton.addEventListener('click', function () {
-                if (bottleCount === 0) {
-                    alert('Please insert at least one bottle!');
-                    return;
-                }
-                
-                collectingSection.style.display = 'none';
-                bottleCountSection.style.display = 'none';
-                successMessage.style.display = 'block';
-                startWiFiTimer(verificationTokens[0], bottleCount);
-                console.log('Starting WiFi Timer with:', {
-                verificationToken,
-                numBottles
+          if (bottleCount === 0) {
+            alert('Please insert at least one bottle!');
+            return;
+            }
 
-                    
-                });
+            collectingSection.style.display = 'none';
+            bottleCountSection.style.display = 'none';
+            successMessage.style.display = 'block';
+
+            // ✅ START WIFI TIMER ONCE
+            startWiFiTimer(verificationTokens[0], bottleCount);
+            });
+
 
 
             function startBottleDetection() {
-                startSection.style.display = 'none';
-                collectingSection.style.display = 'none';
-                timerSection.style.display = 'block';
-                timeLeft = 30;
+    startSection.style.display = 'none';
+    collectingSection.style.display = 'none';
+    timerSection.style.display = 'block';
+    timeLeft = 30;
 
-                let checkIR = setInterval(async function () {
-                    try {
-                        const res = await fetch("ir.php");
-                        const data = await res.json();
-                        
-                        console.log('IR Response:', data);
+    let checkIR = setInterval(async function () {
+        try {
+            const res = await fetch("ir.php");
+            const data = await res.json();
 
-                        if (data.error) {
-                            clearInterval(checkIR);
-                            clearInterval(countdownInterval);
-                            timerSection.style.display = 'none';
-                            console.log('Showing error:', data.error_type);
-                            showError(data.error, data.error_type, data.debug);
-                            return;
-                        }
-
-                        if (data.detected) {
-                            clearInterval(checkIR);
-                            clearInterval(countdownInterval);
-                            
-                            bottleCount++;
-                            verificationTokens.push(data.verification_token);
-                            
-                            bottleCountDisplay.textContent = bottleCount;
-                            
-                            fetch('settings_handler.php')
-                              .then(res => res.json())
-                              .catch(() => ({ wifi_minutes_per_bottle: 5 }))
-                              .then(settings => {
-                              const minutesPerBottle = Number(settings.wifi_minutes_per_bottle) || 5;
-                              const totalMinutes = bottleCount * minutesPerBottle;
-
-                              totalTimeDisplay.textContent = `${totalMinutes} minutes WiFi`;
-                              });
-
-
-
-                            
-                            timerSection.style.display = 'none';
-                            bottleCountSection.style.display = 'block';
-                            collectingSection.style.display = 'block';
-                            
-                            fetch('log_bottle.php', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ action: 'log_bottle' })
-                            }).catch(err => console.error('Failed to log bottle:', err));
-                        }
-                    } catch (e) {
-                        console.error('Fetch error:', e);
-                    }
-                }, 500);
-
-                countdownInterval = setInterval(function () {
-                    timeLeft--;
-                    timer.textContent = timeLeft;
-                    progressBar.style.width = (timeLeft / 30 * 100) + "%";
-
-                    if (timeLeft <= 0) {
-                        clearInterval(countdownInterval);
-                        clearInterval(checkIR);
-                        timerSection.style.display = 'none';
-                        showError("No bottle detected within 30 seconds", "TIMEOUT", {
-                            'possible_causes': [
-                                'Bottle not positioned in front of sensor',
-                                'Sensor may not be wired correctly',
-                                'GPIO pin permissions not configured'
-                            ]
-                        });
-                    }
-                }, 1000);
+            if (data.error) {
+                clearInterval(checkIR);
+                clearInterval(countdownInterval);
+                timerSection.style.display = 'none';
+                showError(data.error, data.error_type, data.debug);
+                return;
             }
+
+            if (data.detected) {
+                clearInterval(checkIR);
+                clearInterval(countdownInterval);
+
+                bottleCount++;
+                verificationTokens.push(data.verification_token);
+
+                bottleCountDisplay.textContent = bottleCount;
+
+                fetch('settings_handler.php')
+                    .then(res => res.json())
+                    .catch(() => ({ wifi_minutes_per_bottle: 5 }))
+                    .then(settings => {
+                        const minutesPerBottle = Number(settings.wifi_minutes_per_bottle) || 5;
+                        const totalMinutes = bottleCount * minutesPerBottle;
+                        totalTimeDisplay.textContent = `${totalMinutes} minutes WiFi`;
+                    });
+
+                timerSection.style.display = 'none';
+                bottleCountSection.style.display = 'block';
+                collectingSection.style.display = 'block';
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }, 500);
+
+    countdownInterval = setInterval(function () {
+        timeLeft--;
+        timer.textContent = timeLeft;
+        progressBar.style.width = (timeLeft / 30 * 100) + "%";
+
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            clearInterval(checkIR);
+            timerSection.style.display = 'none';
+            showError("No bottle detected within 30 seconds", "TIMEOUT");
+        }
+    }, 1000);
+}
+
 
             function startWiFiTimer(verificationToken, numBottles = 1) {
     const display = document.getElementById('timeRemaining');

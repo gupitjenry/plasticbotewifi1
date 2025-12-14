@@ -22,21 +22,17 @@ if (!file_exists($recyclingFile)) {
 }
 if (!file_exists($settingsFile)) {
     file_put_contents($settingsFile, json_encode([
-    "wifi_minutes_per_bottle" => 5,
-    "ssid" => "BottleWifi",
-    "security_mode" => "WPA3-Personal",
-    "channel" => "Auto",
-    "firewall_enabled" => true
+        "wifi_time" => 3600,
+        "ssid" => "BottleWifi",
+        "security_mode" => "WPA3-Personal",
+        "channel" => "Auto",
+        "firewall_enabled" => true
     ], JSON_PRETTY_PRINT));
-
 }
 
 // ---------- LOAD SETTINGS ----------
 $settings = json_decode(file_get_contents($settingsFile), true);
-$minutesPerBottle = isset($settings['wifi_minutes_per_bottle'])
-    ? intval($settings['wifi_minutes_per_bottle'])
-    : 5;
-
+$wifiTime = isset($settings['wifi_time']) ? intval($settings['wifi_time']) : 3600;
 
 // ---------- GET ACTION ----------
 $action = $_GET['action'] ?? null;
@@ -107,53 +103,75 @@ if ($action === "open") {
     exit;
 }
 
-// 4️⃣ **BOTTLE DETECTED → ADD SESSION & LOG EVENT**
 if ($action === "reward") {
+    $token = $_GET['token'] ?? null;
+    $tokenFile = __DIR__ . '/bottle_tokens.json';
 
-    // how many bottles
-    $bottles = intval($_GET['bottles'] ?? 1);
+if (!$token || !file_exists($tokenFile)) {
+    http_response_code(403);
+    echo json_encode(["error" => "Invalid or missing token"]);
+    exit;
+}
+
+    $tokens = json_decode(file_get_contents($tokenFile), true) ?: [];
+
+if (
+    !isset($tokens[$token]) ||
+    $tokens[$token]['used'] === true ||
+    $tokens[$token]['expires_at'] < time()
+) {
+    http_response_code(403);
+    echo json_encode(["error" => "Token expired or already used"]);
+    exit;
+}
+
+// mark token as used
+    $tokens[$token]['used'] = true;
+    file_put_contents($tokenFile, json_encode($tokens, JSON_PRETTY_PRINT));
+
+
+    $bottles = isset($_GET['bottles']) ? intval($_GET['bottles']) : 1;
     if ($bottles < 1) $bottles = 1;
 
-    // compute wifi time
-    $totalMinutes = $minutesPerBottle * $bottles;
-    $totalSeconds = $totalMinutes * 60;
+    // minutes per bottle
+    $minutesPerBottle = isset($settings['wifi_minutes_per_bottle']) &&
+                    intval($settings['wifi_minutes_per_bottle']) > 0
+    ? intval($settings['wifi_minutes_per_bottle'])
+    : 5;
 
-    // log recycling event
-    $entry = [
+
+    $totalMinutes = $minutesPerBottle * $bottles;
+    $expiresAt = time() + ($totalMinutes * 60);
+
+    // log recycling
+    $recycling[] = [
         "mac" => $clientMAC,
         "ip" => $clientIP,
-        "timestamp" => date("Y-m-d H:i:s"),
         "bottles" => $bottles,
-        "minutes" => $totalMinutes
+        "minutes" => $totalMinutes,
+        "timestamp" => date("Y-m-d H:i:s")
     ];
-    $recycling[] = $entry;
     file_put_contents($recyclingFile, json_encode($recycling, JSON_PRETTY_PRINT));
 
     // remove expired sessions
-    $sessions = array_filter($sessions, function ($s) {
-        return isset($s['expires_at']) && $s['expires_at'] > time();
-    });
+    $sessions = array_filter($sessions, fn($s) =>
+        isset($s['expires_at']) && $s['expires_at'] > time()
+    );
 
-    // create wifi session
-    $expiresAt = time() + $totalSeconds;
-    $session = [
+    // add new session
+    $sessions[] = [
         "mac" => $clientMAC,
         "ip" => $clientIP,
         "expires_at" => $expiresAt
     ];
-    $sessions[] = $session;
-
     file_put_contents($sessionFile, json_encode(array_values($sessions), JSON_PRETTY_PRINT));
 
-    // response
     echo json_encode([
         "success" => true,
         "minutes_per_bottle" => $minutesPerBottle,
         "bottles" => $bottles,
         "total_minutes" => $totalMinutes,
-        "expires_at" => $expiresAt,
-        "mac" => $clientMAC,
-        "ip" => $clientIP
+        "expires_at" => $expiresAt
     ]);
     exit;
 }
@@ -164,5 +182,3 @@ echo json_encode(["error" => "Unknown action"]);
 exit;
 
 ?>
-
-

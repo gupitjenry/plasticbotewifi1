@@ -368,7 +368,8 @@ body {
                 </div>
                 <div class="status-card">
                     <div class="status-label">Time Left</div>
-                    <div class="status-value" id="timeRemaining">5:00</div>
+                    <div class="status-value" id="timeRemaining">--:--</div>
+
                 </div>
             </div>
             
@@ -487,16 +488,19 @@ body {
                 window.location.href = 'admin-login.php';
             });
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const bottles = parseInt(urlParams.get('bottles')) || 0;
-            const tokens = urlParams.get('tokens');
+              const urlParams = new URLSearchParams(window.location.search);
+              const bottles = parseInt(urlParams.get('bottles')) || 0;
+              const tokens = urlParams.get('tokens');
 
-            if (bottles > 0 && tokens) {
-            const tokenArray = tokens.split(',');
-            startSection.style.display = 'none';
-            successMessage.style.display = 'block';
-            startWiFiTimer(tokenArray[0], bottles);
-            }
+        if (bottles > 0 && tokens) {
+              // SHOW success screen only
+              startSection.style.display = 'none';
+               successMessage.style.display = 'block';
+
+    // ❌ DO NOT call startWiFiTimer here
+}
+
+
 
             startButton.addEventListener('click', function () {
                 window.location.href = 'collect_bottles.php';
@@ -515,9 +519,14 @@ body {
                 collectingSection.style.display = 'none';
                 bottleCountSection.style.display = 'none';
                 successMessage.style.display = 'block';
-                
                 startWiFiTimer(verificationTokens[0], bottleCount);
-            });
+                console.log('Starting WiFi Timer with:', {
+                verificationToken,
+                numBottles
+
+                    
+                });
+
 
             function startBottleDetection() {
                 startSection.style.display = 'none';

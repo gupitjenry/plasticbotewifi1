@@ -492,18 +492,10 @@ body {
             const tokens = urlParams.get('tokens');
 
             if (bottles > 0 && tokens) {
-                const tokenArray = tokens.split(',');
-                startSection.style.display = 'none';
-                successMessage.style.display = 'block';
-                
-                const subtitleElement = document.getElementById('wifiGrantedSubtitle');
-                if (bottles === 1) {
-                    subtitleElement.textContent = 'Bottle was dropped to earn WiFi time';
-                } else {
-                    subtitleElement.textContent = 'Bottles were dropped to earn WiFi time';
-                }
-                
-                startWiFiTimer(tokenArray[0], bottles);
+            const tokenArray = tokens.split(',');
+            startSection.style.display = 'none';
+            successMessage.style.display = 'block';
+            startWiFiTimer(tokenArray[0], bottles);
             }
 
             startButton.addEventListener('click', function () {
@@ -562,12 +554,12 @@ body {
                               .then(res => res.json())
                               .catch(() => ({ wifi_minutes_per_bottle: 5 }))
                               .then(settings => {
-                              const minutesPerBottle = Number(settings.wifi_minutes_per_bottle);
-                              const totalMinutes = Number(data.total_minutes);
-                              const safeTotalMinutes = isNaN(totalMinutes) || totalMinutes <= 0 ? 5 : totalMinutes;
-                              let secondsLeft = safeTotalMinutes * 60;
+                              const minutesPerBottle = Number(settings.wifi_minutes_per_bottle) || 5;
+                              const totalMinutes = bottleCount * minutesPerBottle;
+
                               totalTimeDisplay.textContent = `${totalMinutes} minutes WiFi`;
                               });
+
 
 
                             
